@@ -1,18 +1,35 @@
 <script setup lang="ts">
 const authState = ref<"login" | "signup">("login");
 
+const {signUp, user} = useAuth()
+
+const toggleAuthState = () => {
+  if(authState.value === "login") {
+    authState.value = "signup"
+  } else {
+    authState.value = "login"
+  }
+}
+
+const handleSubmit = () => {
+  signUp(email, password)
+}
+
 </script>
 
 <template>
   <div>
 <NCard class="card">
-  <h3>Login</h3>
+  <h3>{{ authState }}</h3>
   <div class="input-container">
   <input type="text" placeholder="Email"/>
   <input type="text" placeholder="Password"/>
   </div>
-  <NButton>Login</NButton>
-  <p>Don't have an account? Create one now</p>
+  <NButton @click="handleSubmit">Submit</NButton>
+  <p @click="toggleAuthState">
+    {{  authState==="login" ?
+      "Don't have an account? create one now" :
+      "Already have an account? Log in" }}</p>
 </NCard>
   </div>
 </template>
@@ -24,6 +41,7 @@ const authState = ref<"login" | "signup">("login");
 }
 .card h3 {
   font-size: 1.75rem;
+  text-transform: capitalize;
 }
 .input-container {
   display: flex;

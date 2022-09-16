@@ -1,7 +1,11 @@
 <script setup lang="ts">
 const authState = ref<"login" | "signup">("login");
+const input = reactive ({
+  password: "",
+  email: ""
+})
 
-const {signUp, user} = useAuth()
+const {signUp, user, signIn, signOut} = useAuth()
 
 const toggleAuthState = () => {
   if(authState.value === "login") {
@@ -12,7 +16,11 @@ const toggleAuthState = () => {
 }
 
 const handleSubmit = () => {
-  signUp(email, password)
+  if(authState.value === "login"){
+    signIn({email: input.email, password: input.password})
+  } else {
+    signUp({email: input.email, password: input.password})
+  }
 }
 
 </script>
@@ -22,10 +30,12 @@ const handleSubmit = () => {
 <NCard class="card">
   <h3>{{ authState }}</h3>
   <div class="input-container">
-  <input type="text" placeholder="Email"/>
-  <input type="text" placeholder="Password"/>
+    {{input.password}}
+  <input type="text" placeholder="Email" v-model="input.email"/>
+  <input type="text" placeholder="Password" v-model="input.password"/>
   </div>
   <NButton @click="handleSubmit">Submit</NButton>
+
   <p @click="toggleAuthState">
     {{  authState==="login" ?
       "Don't have an account? create one now" :

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 const authState = ref<"login" | "signup">("login");
-const authError = ref("")
+const authError = ref("");
+const showConfirmEmailMessage = ref(false)
 const input = reactive ({
   password: "",
   email: ""
 })
+const router = useRouter()
 
 const {signUp, user, signIn, signOut} = useAuth()
 
@@ -20,7 +22,8 @@ const toggleAuthState = () => {
 const handleSubmit = async() => {
   try {
     if(authState.value === "login"){
-      await signIn({email: input.email, password: input.password})
+      await signIn({email: input.email, password: input.password});
+      router.push("/profile")
     } else {
       await signUp({email: input.email, password: input.password})
     }
@@ -36,22 +39,31 @@ const handleSubmit = async() => {
 
 <template>
   <div>
-<NCard class="card">
-  <h3>{{ authState }}</h3>
-  <div class="input-container">
-    {{input.password}}
-  <input type="text" placeholder="Email" v-model="input.email"/>
-  <input type="text" placeholder="Password" v-model="input.password"/>
-  </div>
-  <NButton @click="handleSubmit">Submit</NButton>
-  <NButton @click="signOut">Logout</NButton>
-  <p v-if="authError" class="error">{{authError}}</p>
-
-  <p @click="toggleAuthState">
-    {{  authState==="login" ?
-      "Don't have an account? create one now" :
-      "Already have an account? Log in" }}</p>
-</NCard>
+    <NCard class="card">
+      <div v-if="!showConfirmEmailMessage">
+        <h3>{{ authState }}</h3>
+        <div class="input-container">
+          <input placeholder="Email" v-model="input.email" />
+          <input
+              placeholder="Password"
+              v-model="input.password"
+              type="password"
+          />
+        </div>
+        <NButton @click="handleSubmit">Submit</NButton>
+        <p class="error" v-if="authError">{{ authError }}</p>
+        <p @click="toggleAuthState">
+          {{
+            authState === "login"
+                ? "Don't have an account? Create one now"
+                : "Already have an account? Go ahead an log in"
+          }}
+        </p>
+      </div>
+      <div v-else>
+        <h3>Check email for confirmation message</h3>
+      </div>
+    </NCard>
   </div>
 </template>
 

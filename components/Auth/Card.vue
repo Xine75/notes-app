@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const authState = ref<"login" | "signup">("login");
+const authError = ref("")
 const input = reactive ({
   password: "",
   email: ""
@@ -13,13 +14,21 @@ const toggleAuthState = () => {
   } else {
     authState.value = "login"
   }
+  authError.value = "";
 }
 
-const handleSubmit = () => {
-  if(authState.value === "login"){
-    signIn({email: input.email, password: input.password})
-  } else {
-    signUp({email: input.email, password: input.password})
+const handleSubmit = async() => {
+  try {
+    if(authState.value === "login"){
+      await signIn({email: input.email, password: input.password})
+    } else {
+      await signUp({email: input.email, password: input.password})
+    }
+    input.email = "";
+    input.password="";
+
+  } catch (err) {
+    authError.value = err.message
   }
 }
 
@@ -35,6 +44,8 @@ const handleSubmit = () => {
   <input type="text" placeholder="Password" v-model="input.password"/>
   </div>
   <NButton @click="handleSubmit">Submit</NButton>
+  <NButton @click="signOut">Logout</NButton>
+  <p v-if="authError" class="error">{{authError}}</p>
 
   <p @click="toggleAuthState">
     {{  authState==="login" ?
@@ -68,6 +79,9 @@ p {
   color: darkblue;
   font-size: 0.75rem;
   cursor: pointer;
+}
+.error {
+  color: red;
 }
 
 </style>
